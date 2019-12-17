@@ -1,6 +1,6 @@
 const fs = require('fs');
-// const phantom = require('phantom');
 const request = require('./request');
+
 
 const typeMap = {
   'String': 'string',
