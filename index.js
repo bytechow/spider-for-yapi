@@ -1,7 +1,6 @@
 const fs = require('fs');
 const request = require('./request');
 
-
 const typeMap = {
   'String': 'string',
   'Date': 'string',
@@ -17,6 +16,7 @@ function getItemDesc(item){
   return item.description.split(',')[1]
 }
 
+// 把 Object 数据转换为 TypeScript
 function createTSText(data){
   const desc = getItemDesc(data)
   let props
@@ -61,12 +61,23 @@ function createTSText(data){
   return text;
 }
 
-async function getApi(){
+function getUrl(){
+  let id = '6138'
+  let urlHead = 'http://47.106.118.192:13000/api/interface/get?id='
+  if(process.argv[2]){
+    const parts = process.argv[2].split('/')
+    id = parts[parts.length-1]
+  }
+  return urlHead + id
+}
+
+(async function main(){
+  const url = getUrl()
   const cookies = [
     '_yapi_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjM1MywiaWF0IjoxNTc2NDYyMTkzLCJleHAiOjE1NzcwNjY5OTN9.joyT6qgzHX4nOn1Y4U8CP_4iJyaXAA6P6ZSaYh4UnXg',
     '_yapi_uid=353'
   ];
-  const [err, res] = await request('http://47.106.118.192:13000/api/interface/get?id=6138', 'GET', 'utf-8', cookies);
+  const [err, res] = await request(url, 'GET', 'utf-8', cookies);
   if(err){
     console.log('error ==>', err)
     return false;
@@ -81,8 +92,7 @@ async function getApi(){
       if(err) console.error('error ==>', err);
     })
   }
-}
-getApi();
+})();
 
 // async function getApi(){
 //   let pt, page

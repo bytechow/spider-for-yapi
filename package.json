@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "git-repo-info": "^2.1.1",
     "iconv-lite": "^0.5.0"
   }
 }
