@@ -27,6 +27,9 @@ const request = function(url, method = 'GET', encoding = 'utf-8', cookies){
         resolve([err, null])
       })
     })
+    req.on('error', (err)=>{
+      resolve([err, null])
+    });
     req.setHeader('Cookie', cookies);
     req.end();
   })

@@ -12,13 +12,14 @@ const typeMap = {
 }
 
 // 获取数据描述
-function getItemDesc(item){
-  return item.description.split(',')[1]
+function getItemDesc(item, separator = ','){
+  const parts = item.description.split(separator)
+  return parts[1] || parts[0] 
 }
 
 // 把 Object 数据转换为 TypeScript
-function createTSText(data){
-  const desc = getItemDesc(data)
+function createTSText(data, separator){
+  const desc = getItemDesc(data, separator);
   let props
   if(data.type === 'array'){
     props = data.items.properties
@@ -37,18 +38,25 @@ function createTSText(data){
     let desc = item.description
     let str = `  // ${desc}\n  ${key}: `
     const tsType = typeMap[item.type]
+    // 基本数据类型 
     if(tsType){
       str += tsType
-    }else{
+    }
+    // 非基本数据类型
+    else{
       if(item.type === 'array'){
         const subItem = item.items
+        // 原始数据类型的数组
         if(['array', 'object'].indexOf(subItem.type) === -1){
           str += `${typeMap[subItem.type]}[]`
-        }else{
+        }
+        // 对象类型的数组
+        else{
           str += `${getItemDesc(item)}`
           objectQueue.push(item)
         }
       } else if (item.type === 'object'){
+        str += `${getItemDesc(item)}`
         objectQueue.push(item)
       }
     }
@@ -72,23 +80,47 @@ function getUrl(){
 }
 
 (async function main(){
-  const url = getUrl()
+  // 发起请求
+  const url = getUrl();
   const cookies = [
-    '_yapi_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjM1MywiaWF0IjoxNTc2NDYyMTkzLCJleHAiOjE1NzcwNjY5OTN9.joyT6qgzHX4nOn1Y4U8CP_4iJyaXAA6P6ZSaYh4UnXg',
+    '_yapi_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjM1MywiaWF0IjoxNTc3MDg4NjAzLCJleHAiOjE1Nzc2OTM0MDN9.jyR__MD1dQUuqJc0opefCgT3w5i1uSjzIlRzBMjgeYs',
     '_yapi_uid=353'
   ];
   const [err, res] = await request(url, 'GET', 'utf-8', cookies);
+
+  // 错误处理
   if(err){
     console.log('error ==>', err)
     return false;
   }
   const resObj = JSON.parse(res)
+  if(resObj.errcode){
+    console.error('res ==>', resObj.errmsg);
+    return false;
+  }
+
+  // 数据处理
   const resData = resObj.data
-  if(resData && resData.res_body){
-    const body = JSON.parse(resData.res_body)
-    const data = body.properties.data
-    const text = createTSText(data)
-    fs.writeFile('test.ts', text, (err) => {
+  if(resData){
+    let requestText = ''
+    let responseText = ''
+
+    try{
+      if(resData.req_body_other){
+        const requestInterface = JSON.parse(resData.req_body_other)
+        requestText = createTSText(requestInterface, ':')
+      }
+      if(resData.res_body){
+        const resBody = resData.res_body ? JSON.parse(resData.res_body) : ''
+        const responseInterface = resBody.properties.data
+        responseText = createTSText(responseInterface)
+      }
+    } catch(err){
+      console.log('parse error ==>', err)
+    }
+    const finalText = requestText + '\n\n' + responseText
+
+    fs.writeFile('test.ts', finalText, (err) => {
       if(err) console.error('error ==>', err);
     })
   }
