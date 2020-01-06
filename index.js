@@ -2,19 +2,20 @@ const fs = require('fs');
 const request = require('./request');
 
 const typeMap = {
-  'String': 'string',
-  'Date': 'string',
-  'LocalDate': 'string',
+  'string': 'string',
+  'date': 'string',
+  'localDate': 'string',
   'int': 'number',
-  'Long': 'number',
-  'Integer': 'number',
-  'Boolean': 'string'
+  'long': 'number',
+  'integer': 'number',
+  'boolean': 'boolean',
+  'response': 'any'
 }
 
 // 获取数据描述
 function getItemDesc(item, separator = ','){
   const parts = item.description.split(separator)
-  return parts[1] || parts[0] 
+  return (parts[1] || parts[0])
 }
 
 // 把 Object 数据转换为 TypeScript
@@ -28,7 +29,7 @@ function createTSText(data, separator){
     props = data.properties
   }
   if(!props){
-    console.lor('error ==> props 为 0，请检查 createTSText 函数的入参');
+    console.log('error ==> props 为 0，请检查 createTSText 函数的入参');
     return '';
   }
   let text = `export interface ${desc} {\n\n`;
@@ -37,7 +38,10 @@ function createTSText(data, separator){
     const item = props[key]
     let desc = item.description
     let str = `  // ${desc}\n  ${key}: `
-    const tsType = typeMap[item.type]
+    let tsType = ''
+    if(typeof item.type === 'string'){
+      tsType = typeMap[item.type.toLowerCase()]
+    }
     // 基本数据类型 
     if(tsType){
       str += tsType
@@ -48,7 +52,7 @@ function createTSText(data, separator){
         const subItem = item.items
         // 原始数据类型的数组
         if(['array', 'object'].indexOf(subItem.type) === -1){
-          str += `${typeMap[subItem.type]}[]`
+          str += `${typeMap[subItem.type.toLowerCase()]}[]`
         }
         // 对象类型的数组
         else{
@@ -83,7 +87,7 @@ function getUrl(){
   // 发起请求
   const url = getUrl();
   const cookies = [
-    '_yapi_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjM1MywiaWF0IjoxNTc3MDg4NjAzLCJleHAiOjE1Nzc2OTM0MDN9.jyR__MD1dQUuqJc0opefCgT3w5i1uSjzIlRzBMjgeYs',
+    '_yapi_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjM1MywiaWF0IjoxNTc3NzAyNzg2LCJleHAiOjE1NzgzMDc1ODZ9.WG41jGQUW5K_UbkoEVhJyfvgZ8fev8q5go6DEruBF2A',
     '_yapi_uid=353'
   ];
   const [err, res] = await request(url, 'GET', 'utf-8', cookies);

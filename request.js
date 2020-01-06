@@ -4,7 +4,7 @@ const iconv = require('iconv-lite')
 /**
  * 让浏览器认为不是爬虫
  */
-const HEADERS = {
+const DEFAUTL_HEADERS = {
   'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92 Safari/537.36'
 }
 
@@ -13,7 +13,7 @@ const request = function(url, method = 'GET', encoding = 'utf-8', cookies){
     const req = http.request(url, {
       method,
       // proxy: 'http://127.0.0.1:1087',
-      headers: HEADERS
+      headers: DEFAUTL_HEADERS
     }, (res) => {
       let chunks = [];
       res.on('data', (chunk) => {
@@ -30,7 +30,9 @@ const request = function(url, method = 'GET', encoding = 'utf-8', cookies){
     req.on('error', (err)=>{
       resolve([err, null])
     });
-    req.setHeader('Cookie', cookies);
+    if(cookies){
+      req.setHeader('Cookie', cookies);
+    }
     req.end();
   })
 }
