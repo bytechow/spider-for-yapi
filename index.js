@@ -120,7 +120,7 @@ function getUrl(){
         responseText = createTSText(responseInterface)
       }
     } catch(err){
-      console.log('parse error ==>', err)
+      console.log('parse error ==>', err);
     }
     const finalText = requestText + '\n\n' + responseText
 
