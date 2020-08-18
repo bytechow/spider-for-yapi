@@ -73,24 +73,26 @@ function createTSText(data, separator){
   return text;
 }
 
-function getUrl(){
+function getUrl(url){
   let id = '6138'
   let urlHead = 'http://47.106.118.192:13000/api/interface/get?id='
-  if(process.argv[2]){
-    const parts = process.argv[2].split('/')
+  console.log("process.argv ==>", process.argv)
+  if(url){
+    const parts = url.split('/')
     id = parts[parts.length-1]
   }
   return urlHead + id
 }
 
 (async function main(){
+  const [_0, _1, url, uid, token] = process.argv
   // 发起请求
-  const url = getUrl();
+  const finalUrl = getUrl(url);
   const cookies = [
-    '_yapi_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjM1MywiaWF0IjoxNTc3NzAyNzg2LCJleHAiOjE1NzgzMDc1ODZ9.WG41jGQUW5K_UbkoEVhJyfvgZ8fev8q5go6DEruBF2A',
-    '_yapi_uid=353'
+    `_yapi_token=${token}`,
+    `_yapi_uid=${uid}`
   ];
-  const [err, res] = await request(url, 'GET', 'utf-8', cookies);
+  const [err, res] = await request(finalUrl, 'GET', 'utf-8', cookies);
 
   // 错误处理
   if(err){
