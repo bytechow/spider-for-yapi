@@ -37,7 +37,7 @@ function createTSText(data, separator){
   Object.keys(props).forEach((key) => {
     const item = props[key]
     let desc = item.description
-    let str = `  // ${desc}\n  ${key}: `
+    let str = `  /** ${desc} */\n  ${key}: `
     let tsType = ''
     if(typeof item.type === 'string'){
       tsType = typeMap[item.type.toLowerCase()]
@@ -64,7 +64,7 @@ function createTSText(data, separator){
         objectQueue.push(item)
       }
     }
-    text += str + ';\n\n'
+    text += str + ';\n'
   });
   text += '}';
   objectQueue.forEach(obj => {
