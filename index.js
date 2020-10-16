@@ -4,10 +4,11 @@ const request = require('./request');
 const typeMap = {
   'string': 'string',
   'date': 'string',
-  'localDate': 'string',
+  'localdate': 'string',
   'int': 'number',
   'long': 'number',
   'integer': 'number',
+  'bigdecimal': 'number',
   'boolean': 'boolean',
   'response': 'any'
 }
