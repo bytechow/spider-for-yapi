@@ -5,6 +5,7 @@ const typeMap = {
   'string': 'string',
   'date': 'string',
   'localdate': 'string',
+  'enum': 'string',
   'int': 'number',
   'long': 'number',
   'integer': 'number',
@@ -33,7 +34,7 @@ function createTSText(data, separator){
     console.log('error ==> props 为 0，请检查 createTSText 函数的入参');
     return '';
   }
-  let text = `export interface ${desc} {\n\n`;
+  let text = `export interface ${desc} {\n`;
   let objectQueue = [];
   Object.keys(props).forEach((key) => {
     const item = props[key]
@@ -51,13 +52,13 @@ function createTSText(data, separator){
     else{
       if(item.type === 'array'){
         const subItem = item.items
-        // 原始数据类型的数组
+        // 原始数据类型的数组元素
         if(['array', 'object'].indexOf(subItem.type) === -1){
           str += `${typeMap[subItem.type.toLowerCase()]}[]`
         }
         // 对象类型的数组
         else{
-          str += `${getItemDesc(item)}`
+          str += `${getItemDesc(item)}[]`
           objectQueue.push(item)
         }
       } else if (item.type === 'object'){
@@ -68,6 +69,7 @@ function createTSText(data, separator){
     text += str + ';\n'
   });
   text += '}';
+  // 递归下一层对象结构
   objectQueue.forEach(obj => {
     text += `\n\n${createTSText(obj)}`;
   })
@@ -113,12 +115,14 @@ function getUrl(url){
     let responseText = ''
 
     try{
+      // 处理请求数据
       if(resData.req_body_other){
         const requestInterface = JSON.parse(resData.req_body_other)
         requestText = createTSText(requestInterface, ':')
       }
+      // 处理响应数据
       if(resData.res_body){
-        const resBody = resData.res_body ? JSON.parse(resData.res_body) : ''
+        const resBody = resData.res_body ? JSON.parse(resData.res_body) : {}
         const responseInterface = resBody.properties.data
         responseText = createTSText(responseInterface)
       }
