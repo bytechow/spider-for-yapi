@@ -7,6 +7,7 @@ const typeMap = {
   'localdate': 'string',
   'enum': 'string',
   'int': 'number',
+  'number': 'number',
   'long': 'number',
   'integer': 'number',
   'bigdecimal': 'number',
